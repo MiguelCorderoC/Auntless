@@ -16,6 +16,37 @@ function CallView() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const chatEndRef = useRef(null);
+  const recognition = new webkitSpeechRecognition();
+
+  recognition.lang = fromLanguage;
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+
+  recognition.onstart = () => {
+    console.log("Grabando...");
+  };
+
+  recognition.onresult = (e) => {
+    const results = e.results;
+    const finalText = results[results.length - 1];
+    console.log("Texto reconocido: " + finalText[0].transcript);
+
+    const newMessage = {
+      body: finalText[0].transcript,
+      from: "Me",
+    };
+    setChat([...chat, newMessage]);
+    socket.emit("message", { body: finalText[0].transcript, from: socket.id });
+  };
+
+  recognition.onspeechend = () => {
+    console.log("Speech terminado");
+  };
+
+  const handleSpeechStart = () => {
+    recognition.start();
+  };
 
   const scrollBottom = () => {
     if (chatEndRef.current) {
@@ -29,13 +60,13 @@ function CallView() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = () => {
     const newMessage = {
       body: message,
       from: "Me",
     };
     setChat([...chat, newMessage]);
-    socket.emit("message", { body: message, from: socket.id });
+    socket.emit("message", { body: message, from: socket.id.slice(6) });
   };
 
   useEffect(() => {
@@ -109,7 +140,7 @@ function CallView() {
               onChange={(e) => setMessage(e.target.value)}
             ></textarea>
             <article className="d-flex gap-2">
-              <button className="btn btn-danger">
+              <button className="btn btn-danger" onClick={handleSpeechStart}>
                 <i className="bi bi-mic"></i>
               </button>
               <button className="btn btn-dark" onClick={handleSubmit}>
