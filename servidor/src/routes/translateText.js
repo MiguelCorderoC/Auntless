@@ -52,9 +52,9 @@ router.post("/translate/text", async (req, res) => {
     });
   }
 
-  const traduccion = await translateText(text, fromLanguage, toLanguage);
+  const translate = await translateText(text, fromLanguage, toLanguage);
 
-  res.json({ traduccion });
+  res.json({ translate });
 });
 
 export default router;
