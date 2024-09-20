@@ -28,18 +28,34 @@ function CallView() {
     console.log("Grabando...");
   };
 
-  recognition.onresult = (e) => {
-    const results = e.results;
-    const finalText = results[results.length - 1];
-    console.log("Texto reconocido: " + finalText[0].transcript);
+  recognition.onresult = async (e) => {
+    try {
+      const results = e.results;
+      const finalText = results[results.length - 1];
+      console.log("Texto reconocido: " + finalText[0].transcript);
 
-    const newMessage = {
-      body: finalText[0].transcript,
-      from: "Me",
-    };
-    setChat([...chat, newMessage]);
-    socket.emit("message", { body: finalText[0].transcript, from: socket.id });
-    setMessage(newMessage.body);
+      const newMessage = {
+        body: finalText[0].transcript,
+        from: "Me",
+      };
+      setChat([...chat, newMessage]);
+
+      const response = await axios.post(
+        "http://" + import.meta.env.VITE_DEVICE_IP + ":3000/api/translate/text",
+        {
+          text: finalText[0].transcript,
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage,
+        }
+      );
+      socket.emit("message", {
+        body: response.data.translate,
+        from: socket.id,
+      });
+      setMessage(newMessage.body);
+    } catch (error) {
+      console.error("Error al traducir en tiempo real");
+    }
   };
 
   recognition.onspeechend = () => {
@@ -60,12 +76,13 @@ function CallView() {
     setChat((state) => {
       return [...state, message];
     });
+    handleTextToSpeech(message.body);
   };
 
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        "http://192.168.1.7:3000/api/translate/text",
+        "http://" + import.meta.env.VITE_DEVICE_IP + ":3000/api/translate/text",
         { text: message, fromLanguage: fromLanguage, toLanguage: toLanguage }
       );
 
@@ -83,12 +100,18 @@ function CallView() {
     }
   };
 
+  const handleTextToSpeech = (text) => {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = fromLanguage;
+    window.speechSynthesis.speak(speech);
+  };
+
   useEffect(() => {
     socket.on("message", receivedMessage);
     return () => {
       socket.off("message", receivedMessage);
     };
-  }, []);
+  }, [fromLanguage, toLanguage]);
 
   useEffect(() => {
     scrollBottom();
@@ -157,6 +180,12 @@ function CallView() {
             <article className="d-flex gap-2">
               <button className="btn btn-danger" onClick={handleSpeechStart}>
                 <i className="bi bi-mic"></i>
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => handleTextToSpeech(message)}
+              >
+                <i className="bi bi-play"></i>
               </button>
               <button className="btn btn-dark" onClick={handleSubmit}>
                 <i className="bi bi-send"></i>
