@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import axios from "axios";
 import "./styles/CallView.css";
 
 const socket = io("/");
@@ -38,6 +39,7 @@ function CallView() {
     };
     setChat([...chat, newMessage]);
     socket.emit("message", { body: finalText[0].transcript, from: socket.id });
+    setMessage(newMessage.body);
   };
 
   recognition.onspeechend = () => {
@@ -60,13 +62,25 @@ function CallView() {
     });
   };
 
-  const handleSubmit = () => {
-    const newMessage = {
-      body: message,
-      from: "Me",
-    };
-    setChat([...chat, newMessage]);
-    socket.emit("message", { body: message, from: socket.id.slice(6) });
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post(
+        "http://192.168.1.7:3000/api/translate/text",
+        { text: message, fromLanguage: fromLanguage, toLanguage: toLanguage }
+      );
+
+      const newMessage = {
+        body: message,
+        from: "Me",
+      };
+      setChat([...chat, newMessage]);
+      socket.emit("message", {
+        body: response.data.translate,
+        from: socket.id.slice(6),
+      });
+    } catch (error) {
+      console.error("Error al concetar con la API");
+    }
   };
 
   useEffect(() => {
@@ -137,6 +151,7 @@ function CallView() {
           <article className="card-footer d-flex align-items-center gap-2">
             <textarea
               className="form-control"
+              value={message}
               onChange={(e) => setMessage(e.target.value)}
             ></textarea>
             <article className="d-flex gap-2">
