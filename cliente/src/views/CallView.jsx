@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import Profile from "../components/Profile";
 import "./styles/CallView.css";
 
 const socket = io("/");
@@ -18,6 +20,10 @@ function CallView() {
   const [chat, setChat] = useState([]);
   const chatEndRef = useRef(null);
   const recognition = new webkitSpeechRecognition();
+  const auth = useAuth();
+  let { displayName, photoURL } = auth.user || {};
+
+  auth.user ? (displayName = displayName) : (displayName = "Guest");
 
   recognition.lang = fromLanguage;
   recognition.continuous = true;
@@ -50,7 +56,7 @@ function CallView() {
       );
       socket.emit("message", {
         body: response.data.translate,
-        from: socket.id,
+        from: displayName,
       });
       setMessage(newMessage.body);
     } catch (error) {
@@ -93,7 +99,7 @@ function CallView() {
       setChat([...chat, newMessage]);
       socket.emit("message", {
         body: response.data.translate,
-        from: socket.id.slice(6),
+        from: displayName,
       });
     } catch (error) {
       console.error("Error al concetar con la API");
@@ -111,7 +117,7 @@ function CallView() {
     return () => {
       socket.off("message", receivedMessage);
     };
-  }, [fromLanguage, toLanguage]);
+  }, [fromLanguage, toLanguage, displayName]);
 
   useEffect(() => {
     scrollBottom();
@@ -120,6 +126,7 @@ function CallView() {
   return (
     <>
       <main className="main-CallView container">
+        <Profile />
         <section className="card">
           <article className="card-header d-flex flex-wrap align-items-center justify-content-between">
             <h2>Call</h2>
@@ -181,7 +188,7 @@ function CallView() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             ></textarea>
-            <article className="d-flex gap-2">
+            <article className="d-flex gap-2 art-submit">
               <button className="btn btn-danger" onClick={handleSpeechStart}>
                 <i className="bi bi-mic"></i>
               </button>
