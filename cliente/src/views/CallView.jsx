@@ -119,7 +119,7 @@ function CallView() {
 
   return (
     <>
-      <main className="main-CallView container mt-5">
+      <main className="main-CallView container">
         <section className="card">
           <article className="card-header d-flex flex-wrap align-items-center justify-content-between">
             <h2>Call</h2>

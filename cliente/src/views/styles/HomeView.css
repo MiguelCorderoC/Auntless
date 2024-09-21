@@ -1,0 +1,16 @@
+.main-HomeView {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+}
+
+.main-HomeView section {
+  text-align: center;
+  margin: 5px;
+}
+
+.main-HomeView section img {
+  width: 250px;
+}
