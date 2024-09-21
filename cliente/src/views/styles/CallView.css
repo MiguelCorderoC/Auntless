@@ -1,3 +1,7 @@
+.main-CallView button {
+  border-radius: 100px;
+}
+
 .art-messages {
   height: 300px;
   overflow-y: scroll;

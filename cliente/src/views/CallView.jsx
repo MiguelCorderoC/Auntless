@@ -119,39 +119,43 @@ function CallView() {
 
   return (
     <>
-      <main className="container">
+      <main className="main-CallView container mt-5">
         <section className="card">
-          <article className="card-header d-flex align-items-center justify-content-between">
+          <article className="card-header d-flex flex-wrap align-items-center justify-content-between">
             <h2>Call</h2>
-            <article>
-              <span>From:</span>
-              <select
-                className="form-select"
-                onChange={(e) => {
-                  setFromLanguage(e.target.value);
-                }}
-                value={fromLanguage}
-              >
-                {selectLanguages.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </option>
-                ))}
-              </select>
-              <span>To:</span>
-              <select
-                className="form-select"
-                onChange={(e) => {
-                  setToLanguage(e.target.value);
-                }}
-                value={toLanguage}
-              >
-                {selectLanguages.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </option>
-                ))}
-              </select>
+            <article className="d-flex gap-4 align-items-center">
+              <article>
+                <strong>From:</strong>
+                <select
+                  className="form-select"
+                  onChange={(e) => {
+                    setFromLanguage(e.target.value);
+                  }}
+                  value={fromLanguage}
+                >
+                  {selectLanguages.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </option>
+                  ))}
+                </select>
+              </article>
+              <article>
+                <strong>To:</strong>
+                <select
+                  className="form-select"
+                  onChange={(e) => {
+                    setToLanguage(e.target.value);
+                  }}
+                  value={toLanguage}
+                >
+                  {selectLanguages.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </option>
+                  ))}
+                </select>
+              </article>
             </article>
           </article>
           <article className="card-body d-flex flex-column art-messages ">
@@ -187,7 +191,7 @@ function CallView() {
               >
                 <i className="bi bi-play"></i>
               </button>
-              <button className="btn btn-dark" onClick={handleSubmit}>
+              <button className="btn btn-success" onClick={handleSubmit}>
                 <i className="bi bi-send"></i>
               </button>
             </article>
