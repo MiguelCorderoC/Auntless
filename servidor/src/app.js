@@ -14,13 +14,15 @@ const server = http.createServer(app);
 const io = new SocketServer(server);
 
 io.on("connection", (socket) => {
-  socket.on("message", ({ body, from }) => {
+  socket.on("message", ({ body, from, photoURL, time }) => {
     console.log();
     console.log("Socket ID: " + from);
     console.log("Message: " + body);
     socket.broadcast.emit("message", {
       body,
       from,
+      photoURL,
+      time,
     });
   });
 });
